@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
 
+import com.wimoor.amazon.common.pojo.entity.PlatformEnums;
 import org.apache.http.HttpException;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -309,34 +310,48 @@ public class AmazonAuthorityServiceImpl extends ServiceImpl<AmazonAuthorityMappe
 		// TODO Auto-generated method stub
 		AmazonAuthority oldAuth=null;
 		oldAuth=this.selectBySellerId(auth.getSellerid());
-		if(StrUtil.isBlank(auth.getSellerid())) {
-			throw new BizException("sellerid 不能为空");
+		if (auth.getPlatform().equals(PlatformEnums.AMAZON.getCode())) {
+			if(StrUtil.isBlank(auth.getSellerid())) {
+				throw new BizException("sellerid 不能为空");
+			}
+			if(StrUtil.isBlank(auth.getAccessKeyId())) {
+				throw new BizException("Access Key 不能为空");
+			}
+			if(StrUtil.isBlank(auth.getSecretKey())) {
+				throw new BizException("Secret Key 不能为空");
+			}
+			if(StrUtil.isBlank(auth.getClientId())) {
+				throw new BizException("Client Id 不能为空");
+			}
+			if(StrUtil.isBlank(auth.getClientSecret())) {
+				throw new BizException("Client Secret 不能为空");
+			}
+			if(StrUtil.isBlank(auth.getRefreshToken())) {
+				throw new BizException("Refresh Token 不能为空");
+			}
+			if(StrUtil.isBlank(auth.getRoleArn())) {
+				throw new BizException("Role Arn 不能为空");
+			}
+			auth.setAccessKeyId(auth.getAccessKeyId().trim());
+			auth.setSecretKey(auth.getSecretKey().trim());
+			auth.setClientId(auth.getClientId().trim());
+			auth.setClientSecret(auth.getClientSecret().trim());
+			auth.setRefreshToken(auth.getRefreshToken().trim());
+			auth.setSellerid(auth.getSellerid().trim());
+			auth.setRoleArn(auth.getRoleArn().trim());
 		}
-		if(StrUtil.isBlank(auth.getAccessKeyId())) {
-			throw new BizException("Access Key 不能为空");
+
+		if (auth.getPlatform().equals(PlatformEnums.OZON.getCode())) {
+			if(StrUtil.isBlank(auth.getClientId())) {
+				throw new BizException("Client Id 不能为空");
+			}
+			if(StrUtil.isBlank(auth.getClientSecret())) {
+				throw new BizException("Client Secret 不能为空");
+			}
+			auth.setClientId(auth.getClientId().trim());
+			auth.setClientSecret(auth.getClientSecret().trim());
 		}
-		if(StrUtil.isBlank(auth.getSecretKey())) {
-			throw new BizException("Secret Key 不能为空");
-		}
-		if(StrUtil.isBlank(auth.getClientId())) {
-			throw new BizException("Client Id 不能为空");
-		}
-		if(StrUtil.isBlank(auth.getClientSecret())) {
-			throw new BizException("Client Secret 不能为空");
-		}
-		if(StrUtil.isBlank(auth.getRefreshToken())) {
-			throw new BizException("Refresh Token 不能为空");
-		}
-		if(StrUtil.isBlank(auth.getRoleArn())) {
-			throw new BizException("Role Arn 不能为空");
-		}
-		auth.setAccessKeyId(auth.getAccessKeyId().trim());
-		auth.setSecretKey(auth.getSecretKey().trim());
-		auth.setClientId(auth.getClientId().trim());
-		auth.setClientSecret(auth.getClientSecret().trim()); 
-		auth.setRefreshToken(auth.getRefreshToken().trim()); 
-		auth.setSellerid(auth.getSellerid().trim());
-		auth.setRoleArn(auth.getRoleArn().trim());
+
 		AmazonGroup group = this.iAmazonGroupService.getById(auth.getGroupid());
 		if(group==null) {
 			throw new BizException("未找到对应店铺");

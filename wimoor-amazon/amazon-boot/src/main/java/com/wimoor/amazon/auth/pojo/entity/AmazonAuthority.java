@@ -107,6 +107,12 @@ public class AmazonAuthority  extends  BaseEntity  implements RateLimitConfigura
 	Date lastupdate;
 	@TableField(exist = false)
 	String useApi;
+
+	/**
+	 * @see com.wimoor.amazon.common.pojo.entity.PlatformEnums
+	 */
+	@TableField(value = "platform")
+    private	Integer platform;
 	public Date getCaptureDateTime() {
 		if(captureDateTime==null){
 			Calendar c = Calendar.getInstance();//可以对每个时间域单独修改

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.wimoor.amazon.common.pojo.entity.PlatformEnums;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,22 +55,76 @@ public class AmazonSellerMarketServiceImpl extends ServiceImpl<AmazonSellerMarke
 			amazonAuthority.setApiRateLimit(null, e);
 		}
 	}
-	
+
 	public void refreshMarketByAuth(AmazonAuthority amazonAuthority) {
-		SellersApi api = apiBuildService.getSellersApi(amazonAuthority);
-		try {
-			 GetMarketplaceParticipationsResponse response = api.getMarketplaceParticipations();
-			 handler(amazonAuthority,response);
-		   } catch (ApiException e) {
-			    // TODO Auto-generated catch block
-			     e.printStackTrace();
-			     throw new BizException("API调用错误："+e.getMessage());
+
+		if (amazonAuthority.getPlatform().equals(PlatformEnums.AMAZON.getCode())) {
+			SellersApi api = apiBuildService.getSellersApi(amazonAuthority);
+			try {
+				GetMarketplaceParticipationsResponse response = api.getMarketplaceParticipations();
+				handler(amazonAuthority,response);
+			} catch (ApiException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				throw new BizException("API调用错误："+e.getMessage());
+			}
 		}
-	 
+
+		if (amazonAuthority.getPlatform().equals(PlatformEnums.OZON.getCode())) {
+			handlerOzon(amazonAuthority);
+		}
 	}
-	
+
+	public List<AmazonSellerMarket> handlerOzon(AmazonAuthority amazonAuthority) {
+		List<AmazonSellerMarket> result = new ArrayList<AmazonSellerMarket>();
+		Marketplace market = new Marketplace();
+		market.setId("ABCSRFVTTJKLHG");
+		market.setName("OZON");
+		market.setCountryCode("RU");
+		market.setDefaultCurrencyCode("RU");
+		market.setDefaultLanguageCode("RUS");
+		market.setDomainName("ozon.ru");
+
+		LambdaQueryWrapper<AmazonSellerMarket> query = new LambdaQueryWrapper<AmazonSellerMarket>()
+				.eq(AmazonSellerMarket::getSellerid, amazonAuthority.getSellerid())
+				.eq(AmazonSellerMarket::getMarketplaceId, market.getId());
+		AmazonSellerMarket sellerMarket = this.baseMapper.selectOne(query);
+		if (sellerMarket != null) {
+			sellerMarket.setName(market.getName());
+			sellerMarket.setCountry(market.getCountryCode());
+			sellerMarket.setCurrency(market.getDefaultCurrencyCode());
+			sellerMarket.setLanguage(market.getDefaultLanguageCode());
+			sellerMarket.setDomain(market.getDomainName());
+			if (StrUtil.isNotBlank(amazonAuthority.getId())) {
+				sellerMarket.setAmazonauthid(new BigInteger(amazonAuthority.getId()));
+			}
+			sellerMarket.setDisable(false);
+			sellerMarket.setOpttime(LocalDateTime.now());
+			sellerMarket.setSellerid(amazonAuthority.getSellerid());
+			sellerMarket.setMarketplaceId(market.getId());
+			result.add(sellerMarket);
+			this.baseMapper.update(sellerMarket, query);
+		} else {
+			sellerMarket = new AmazonSellerMarket();
+			sellerMarket.setName(market.getName());
+			sellerMarket.setCountry(market.getCountryCode());
+			sellerMarket.setCurrency(market.getDefaultCurrencyCode());
+			sellerMarket.setLanguage(market.getDefaultLanguageCode());
+			sellerMarket.setDomain(market.getDomainName());
+			if (StrUtil.isNotBlank(amazonAuthority.getId())) {
+				sellerMarket.setAmazonauthid(new BigInteger(amazonAuthority.getId()));
+			}
+			sellerMarket.setDisable(false);
+			sellerMarket.setOpttime(LocalDateTime.now());
+			sellerMarket.setSellerid(amazonAuthority.getSellerid());
+			sellerMarket.setMarketplaceId(market.getId());
+			result.add(sellerMarket);
+			this.baseMapper.insert(sellerMarket);
+		}
+		return result;
+	}
+
 	public List<AmazonSellerMarket> handler(AmazonAuthority amazonAuthority, GetMarketplaceParticipationsResponse response) {
-		// TODO Auto-generated method stub
 		List<AmazonSellerMarket> result=new ArrayList<AmazonSellerMarket>();
 		MarketplaceParticipationList list = response.getPayload();
 		 for(MarketplaceParticipation marketplaceParticipation:list) {
@@ -149,23 +204,23 @@ public class AmazonSellerMarketServiceImpl extends ServiceImpl<AmazonSellerMarke
 		}
 		return needupdate;
 	}
-	
+
 	public int deleteByLogic(AmazonSellerMarket amazonSellerMarketPlace) {
-	 return this.baseMapper.deleteByLogic(amazonSellerMarketPlace);	
+	 return this.baseMapper.deleteByLogic(amazonSellerMarketPlace);
 	}
-	
+
 	public int selectBySellerIdLogic(String sellerid) {
 		return this.baseMapper.selectBySellerIdLogic(sellerid);
 	}
-	
+
 	public int getCurrentMarketCountByShopId(String shopId) {
 		return this.getCurrentMarketCountByShopId(shopId);
 	}
-	
+
 	public List<Map<String,Object>> selectByGroup(String groupid){
 		return this.baseMapper.selectByGroup(groupid);
 	}
-	
+
 	public List<AmazonSellerMarket> selectAllBySellerId(String sellerid){
 		return this.baseMapper.selectAllBySellerId(sellerid);
 	}

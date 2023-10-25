@@ -25,6 +25,7 @@ import lombok.EqualsAndHashCode;
 @ApiModel(value="AmazonSellerMarket对象", description="授权对应区域客户所有绑定的站点")
 public class AmazonSellerMarket implements Serializable {
 
+    //todo:在这里增加 平台的概念
     private static final long serialVersionUID=1L;
 
     @ApiModelProperty(value = "卖家Sellerid")

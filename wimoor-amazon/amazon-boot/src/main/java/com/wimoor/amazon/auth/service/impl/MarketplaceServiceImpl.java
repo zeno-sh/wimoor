@@ -45,7 +45,7 @@ public class MarketplaceServiceImpl extends ServiceImpl<MarketplaceMapper, Marke
 	public List<Marketplace> findAllMarketplace() {
 		QueryWrapper<Marketplace> query = new QueryWrapper<Marketplace>();
 		query.orderByAsc("findex");
-		query.isNotNull("aws_region");
+//		query.isNotNull("aws_region");
 		return this.list(query);
 	}
 
