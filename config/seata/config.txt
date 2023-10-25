@@ -87,7 +87,7 @@ store.db.dbType=mysql
 store.db.driverClassName=com.mysql.jdbc.Driver
 store.db.url=jdbc:mysql://127.0.0.1:3306/seata?useUnicode=true&rewriteBatchedStatements=true
 store.db.user=root
-store.db.password=123456
+store.db.password=1234568
 #我增加了下面两个
 service.vgroupMapping.device=default #这里是固定写法将device修改成你的应用里面的application.yml里面的seata.tx-service-group名称
 service.vgroupMapping.task=default #
